@@ -1,3 +1,4 @@
+import pandas as pd
 import requests
 from sentence_transformers import SentenceTransformer, util
 from transformers import pipeline
@@ -40,7 +41,7 @@ def get_full_wikipedia_text(title):
             return page_data.get("extract", "")
     return ""
 
-# Step 3: Summarize each article (truncated) and combine into final summary
+# Step 3: Summarize each article and combine
 def generate_combined_summary_from_article_summaries(articles, article_truncate_limit=3000):
     summaries = []
     for article in articles:
@@ -55,11 +56,9 @@ def generate_combined_summary_from_article_summaries(articles, article_truncate_
             summaries.append(summary)
         except Exception:
             summaries.append("(Summarization failed for one article)")
-    
-    # Combine all summaries
+
     combined_summary_input = " ".join(summaries)
     
-    # Final summary over all summaries — no truncation here
     try:
         final_summary = summarizer(
             combined_summary_input,
@@ -71,11 +70,10 @@ def generate_combined_summary_from_article_summaries(articles, article_truncate_
     except Exception:
         return "Failed to generate combined summary."
 
-# Full pipeline
+# Full Wikipedia summarization pipeline
 def full_search_pipeline(query, limit=10, top_k=5):
     titles = wiki_search_titles(query, limit=limit)
 
-    # Fetch article contents
     articles = []
     for title in titles:
         content = get_full_wikipedia_text(title)
@@ -85,17 +83,13 @@ def full_search_pipeline(query, limit=10, top_k=5):
     if not articles:
         return {"summary": "(No content found)", "sources": []}
 
-    # Re-rank based on semantic similarity
     query_embedding = embedding_model.encode(query, convert_to_tensor=True)
     for article in articles:
         article_embedding = embedding_model.encode(article["content"], convert_to_tensor=True)
         similarity_score = util.cos_sim(query_embedding, article_embedding).item()
         article["similarity"] = similarity_score
 
-    # Keep top-k most relevant
     ranked_articles = sorted(articles, key=lambda x: x["similarity"], reverse=True)[:top_k]
-
-    # Generate one combined summary from all top-k article summaries
     final_summary = generate_combined_summary_from_article_summaries(ranked_articles)
 
     return {
@@ -103,14 +97,21 @@ def full_search_pipeline(query, limit=10, top_k=5):
         "sources": ranked_articles
     }
 
+# Main CSV processing function
+def process_claims_csv(input_csv_path, output_csv_path):
+    df = pd.read_csv(input_csv_path)
+    
+    summaries = []
+    for claim in df["claim"]:
+        print(f"Processing claim: {claim[:60]}...")
+        result = full_search_pipeline(claim)
+        summaries.append(result["summary"])
+    
+    df["Additional_Info"] = summaries
+    df.to_csv(output_csv_path, index=False)
+    print(f"\n✅ Saved output to: {output_csv_path}")
+
 # Example usage
 if __name__ == "__main__":
-    query = "machine learning"
-    results = full_search_pipeline(query, limit=10, top_k=5)
-
-    print("\n📘 Final Combined Summary:")
-    print(results["summary"])
-    print("\n📚 Top Articles Used:")
-    for i, article in enumerate(results["sources"], 1):
-        print(f"{i}. {article['title']} (Similarity: {article['similarity']:.4f})")
+    process_claims_csv("input.csv", "claims_with_summaries.csv")
 
