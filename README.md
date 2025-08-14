@@ -3,7 +3,7 @@
 
 This project investigates **multilingual fact-checking** using XLM-RoBERTa, with a focus on robustness to adversarial noise, parameter-efficient fine-tuning using **LoRA**, and evidence integration using **retrieval and summarization** pipelines. We address both **claim-only** settings and **evidence-rich** tasks across multiple languages.
 
-## 🚀 Overview
+## Overview
 
 1. **Cross-lingual Fact Verification:**  
    - Fine-tuned XLM-RoBERTa-base and large on the multilingual **X-Fact** dataset.
@@ -22,7 +22,7 @@ This project investigates **multilingual fact-checking** using XLM-RoBERTa, with
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 | File | Description |
 |------|-------------|
@@ -38,7 +38,7 @@ This project investigates **multilingual fact-checking** using XLM-RoBERTa, with
 
 ---
 
-## 📊 Datasets
+## Datasets
 
 - **X-Fact (multilingual):**  
   - 9 languages: Farsi, Turkish, German, Spanish, Dutch, French, Polish, Georgian, Sinhala  
@@ -51,7 +51,7 @@ This project investigates **multilingual fact-checking** using XLM-RoBERTa, with
 
 ---
 
-## 🔍 Approach Summary
+## Approach Summary
 
 ### Multilingual Fine-Tuning (X-Fact)
 - Model: `XLM-RoBERTa-{base,large}` + LoRA (r=128)
@@ -72,67 +72,3 @@ This project investigates **multilingual fact-checking** using XLM-RoBERTa, with
 
 ---
 
-## 📈 Results
-
-### Fine-Tuning vs. Unfined Models (X-Fact)
-| Model | Accuracy (%) | F1 (%) | Recall (%) | Fine-tuned |
-|-------|--------------|--------|-------------|-------------|
-| XLM-R base | 31 | 15 | 31 | ❌ |
-| XLM-R base | 39 | 40 | 39 | ✅ |
-| XLM-R large | 11 | 2 | 11 | ❌ |
-| XLM-R large | 44 | 45 | 44 | ✅ |
-
-### Robustness to Perturbation
-- F1 score and accuracy dropped significantly for languages like French and Dutch under heavy perturbations
-- Stability observed in languages like Persian and Polish after adversarial fine-tuning
-
-### SciFact + Retrieval
-| Setting | Accuracy (%) | F1 (%) |
-|---------|--------------|--------|
-| Fine-tuned (no retrieval) | 60.05 | 58.74 |
-| Fine-tuned (with retrieval) | 67.02 | 63.04 |
-| Unfine-tuned (no retrieval) | 63.91 | 38.99 |
-| Unfine-tuned (with retrieval) | 34.04 | 25.40 |
-
----
-
-## 📦 Dependencies
-
-- `transformers`, `datasets`, `peft`, `sentence-transformers`, `scikit-learn`, `torch`, `numpy`, `pandas`
-
-Install with:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 👩‍💻 Contributors
-
-- **Reyhaneh Ahani** — Multilingual modeling, adversarial training, gradient analysis, SciFact experiments  
-- **Pegah Aryadoost** — LOKI setup, retrieval integration, Wikipedia data prep  
-- **Both** — Report writing, slides, and evaluation coordination
-
----
-
-## 📜 Citation
-
-If you use this project, please cite our report:
-
-> R. Ahani, P. Aryadoost. "Cross-Lingual Fact-Checking". Simon Fraser University, 2025.
-
----
-
-## 📂 Acknowledgments
-
-We gratefully acknowledge:
-- UtahNLP for X-Fact dataset
-- AllenAI for SciFact
-- HuggingFace & Kaggle for compute and dataset access
-
----
-
-## License
-
-MIT License © 2025 Reyhaneh Ahani & Pegah Aryadoost
